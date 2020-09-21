@@ -1,13 +1,16 @@
 'use strict';
 
 const { src, dest, parallel, series, watch } = require('gulp'),
-  browserSync = require('browser-sync').create(),// модуль для запуска сервера  
-  concat = require('gulp-concat'), // модуль для обьеденения js и css файлов 
-  uglify = require('gulp-uglify'), // модуль для сжатия js файлов
-  scss = require('gulp-sass'), // модуль пепроцесор 
-  cleancss = require('gulp-clean-css'),
-  htmlmin = require('gulp-htmlmin'),
-  imagemin = require('gulp-imagemin'),
+  browserSync = require('browser-sync').create(),// модуль для запуска сервера  .
+  concat = require('gulp-concat'), // модуль для обьеденения js и css файлов .
+  uglify = require('gulp-uglify'), // модуль для сжатия js файлов.
+  scss = require('gulp-sass'), // модуль для пепроцесоров .
+  cleancss = require('gulp-clean-css'), //модуль для сжатия css.
+  babel = require('gulp-babel'), //Babel-это транспайлер, переписывает код современного стандарта Javascript (ES2015) на более поздний. 
+  htmlmin = require('gulp-htmlmin'), // сжимаем html.
+  imagemin = require('gulp-imagemin'), // сжимаем картинки.
+  filesize = require('gulp-filesize'),
+  newer = require('gulp-newer'), // сравнивает исходній файл с вайлами которые уже внутри (допаустим папки) ели они равны то не делаем что-то
   autoprefixer = require('gulp-autoprefixer'); // модуль для авто растановки префикосов.
 
 function browsersync() {
@@ -19,7 +22,7 @@ function browsersync() {
     browser: ["firefox"]
   }),
 
-    watch('dev/*.html', series(html)).on('change', browserSync.reload),
+  watch('dev/*.html', series(html)).on('change', browserSync.reload),
   watch('dev/scss/*.scss', series(compScss)).on('change', browserSync.reload),
   watch('dev/js/*.js', series(mainjs)).on('change', browserSync.reload);
   
@@ -60,6 +63,7 @@ function scripts() { // работаем со скриптами библиот�
     'node_modules/jquery/dist/jquery.min.js',
     'node_modules/swiper/swiper-bundle.min.js',
   ])
+    .pipe(babel())
     .pipe(concat('libs.min.js'))// обеденяем файлы библиотек в один js  файл  с именем libs.min.js
     .pipe(uglify()) // минифицируем этот файл 
     .pipe(dest('app/js/')); // добавляем файл libs.min.js в папку app/js/
@@ -69,13 +73,19 @@ function mainjs() { // работаем с файлом в котором неп
   return src([ // путь к нему 
     'dev/js/main.js',
   ])
+    .pipe(babel())
     .pipe(concat('main.js'))// изменяем имя (хоть это и не нужно сейчас, но вдруг в папке js будет больше чем 1 файл?)
     .pipe(uglify()) // минифицируем этот файл
     .pipe(dest('app/js/')); // добавляем файл main.js в папку app/js/
 }
 
 function images() {
-  return src()
+  return src('dev/images/**/*.+(png|jpg|jpeg|gif|svg|ico|webp)')
+  .pipe(filesize())
+  .pipe(newer('app/images/'))
+  .pipe(imagemin())
+  .pipe(dest('app/images/'))
+  .pipe(filesize());
 }
 
 // єкспортируем функцию browserSync в таск browserSync
@@ -86,6 +96,7 @@ exports.scripts = scripts;
 exports.mainjs = mainjs;
 exports.compScss = compScss;
 exports.html = html;
+exports.images = images;
 
 
-exports.default = parallel(scripts, mainjs, compScss, html, browsersync);
+exports.default = parallel(images, scripts, mainjs, compScss, html, browsersync);
