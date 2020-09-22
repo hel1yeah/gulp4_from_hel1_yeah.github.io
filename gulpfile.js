@@ -45,6 +45,7 @@ function html() {// работаем с html файлами
 
 function compScss() { // работаем с препроцесором 
   return src([
+    'node_modules/swiper/swiper-bundle.min.css',
     'node_modules/normalize.css/normalize.css',
     'src/scss/style.scss'
   ]) // путь к файлу
