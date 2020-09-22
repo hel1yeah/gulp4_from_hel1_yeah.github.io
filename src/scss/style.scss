@@ -1,3 +1,6 @@
-body {
-  background: blue;
-}
+@import "fonts"; // Шрифты 
+@import "vars"; // mixin 
+@import "global"; // глобальные стили для страницы + стили которые повторяються по странице
+
+
+@import 'footer'; // стили для футера

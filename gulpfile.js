@@ -84,7 +84,7 @@ function scripts() { // работаем со скриптами библиот�
 
 function mainjs() { // работаем с файлом в котором непосредственно пишем код
   return src([ // путь к нему 
-    'src/js/main.js',
+    'src/js/*.js',
   ])
     .pipe(babel())// поддержка стандартов ES5 (пишем мы в 6 том)
     .pipe(concat('main.js'))// изменяем имя (хоть это и не нужно сейчас, но вдруг в папке js будет больше чем 1 файл?)
@@ -159,4 +159,5 @@ exports.fontWoff = fontWoff; // переделать шрифт в Woff
 exports.fontWoff2 = fontWoff2; // переделать шрифт в Woff2
 exports.fontEot = fontEot; // переделать шрифт в еot 
 
+// export.build = 
 exports.default = parallel(cacheClear, fontWoff, fontWoff2, fontEot, images, scripts, mainjs, compScss, html, browsersync);
